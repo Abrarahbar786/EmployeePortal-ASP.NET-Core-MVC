@@ -1,0 +1,78 @@
+﻿using EmployeePortal.Models;
+using Microsoft.Identity.Client;
+using System.ComponentModel.DataAnnotations;
+
+namespace EmployeePortal.ViewModels
+{
+    public class EmployeeCreateUpdateViewModel
+    {
+        public int? Id { get; set; }
+        [Required(ErrorMessage = "Full Name is required")]
+        [StringLength(100)]
+        public string FullName { get; set; } = null!;
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress]
+        public string Email { get; set; } = null!;
+        [Required(ErrorMessage = "Department is required")]
+        public int DepartmentId { get; set; }
+   
+        [Required(ErrorMessage = "Designation is required")]
+        public int DesignationId { get; set; }
+        [Display(Name = "Hire Date")]
+        [Required(ErrorMessage = "Hire Date is required")]
+        [DataType(DataType.Date)]
+        [CustomValidation(typeof(EmployeeCreateUpdateViewModel), nameof(ValidateHireDate))]
+
+        public DateTime HireDate { get; set; } = DateTime.Today;
+
+        [Display(Name = "Date of Birth")]
+        [Required(ErrorMessage = "Date of Birth is required")]
+        [DataType(DataType.Date)]
+        [CustomValidation(typeof(EmployeeCreateUpdateViewModel), nameof(ValidateDateOfBirth))]
+        public DateTime DateOfBirth { get; set; } = DateTime.Today.AddYears(-60);
+
+        [Required(ErrorMessage = "Employee Type is required")]
+        public int EmployeeTypeId { get; set; }
+        [Required(ErrorMessage = "Gender is required")]
+
+        public string Gender { get; set; } = null!;
+
+        [Required(ErrorMessage = "Salary is required")]
+        [Range(0, double.MaxValue)]
+
+        public Decimal Salary { get; set; }
+
+        //For DropDown Lists
+
+        public List<Department>? Departments { get; set; }
+        public List<Designation>? Designations { get; set; }
+        public List<EmployeeType>? EmployeeTypes { get; set; }
+
+        //Validation Methods:
+
+        public static ValidationResult? ValidateHireDate(DateTime? HireDate, ValidationContext context)
+        {
+            if (!HireDate.HasValue)
+                return new ValidationResult("Hire Date is required.");
+
+            if (HireDate.Value.Date > DateTime.Today)
+                return new ValidationResult("Hire Date cannot be in the future.");
+            return ValidationResult.Success;
+        }
+
+        public static ValidationResult? ValidateDateOfBirth(DateTime? dob, ValidationContext context)
+        {
+            if (!dob.HasValue)
+                return new ValidationResult("Date of Birth is required.");
+
+            var minDob = DateTime.Today.AddYears(-60); // Max age 60 Years (adjust as needed)
+            var maxDob = DateTime.Today.AddYears(-18); //min workin age Years
+
+            if (dob.Value.Date < minDob || dob.Value.Date > maxDob)
+                return new ValidationResult($"Date of Birth must be between {minDob:yyyy-MM-dd} and {maxDob:yyyy-MM-dd}.");
+                    return ValidationResult.Success;
+        }
+
+
+    }
+}
